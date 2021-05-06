@@ -608,6 +608,12 @@
                 $("#discountAmount").val(discountAmount);
             }
 
+            /*reset discount ratio on change request count*/
+            /*$('#requestCount').change(function(){
+              $('#discountRatio').prop('selectedIndex',0);
+            });*/
+
+
             $("#amountTendered").bind('keyup', function () {
                 let tenderedAmount = parseFloat($(this).val());
                 let totalAmount = parseFloat($("#totalAmount").val());

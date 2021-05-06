@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Controller
@@ -61,6 +62,7 @@ public class ItemController implements AbstractController< Item, Integer > {
     model.addAttribute("items", itemService.findAll().stream()
             .filter(x -> LiveDead.ACTIVE.equals(x.getLiveDead()))
             .collect(Collectors.toList()));
+
     return "item/item";
   }
 

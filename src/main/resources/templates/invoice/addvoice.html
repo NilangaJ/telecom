@@ -47,10 +47,15 @@
                   </div >
                 </div >
                 <div class="form-row" >
-                  <!--Expired date-->
+                  <!--Request Count-->
                   <div class="form-group col-md-6" >
                     <label for="requestCount" class="text-dark" >Request Count :</label >
                     <input id="requestCount" class="form-control" type="number" step="1" min="0" />
+                  </div >
+                  <!--Discount-->
+                  <div class="form-group col-md-6" >
+                    <label for="disCount" class="text-dark" >Discount :</label >
+                    <input id="disCount" class="form-control" type="number" step="1" min="0" />
                   </div >
                   <!--Total -->
                   <div class="form-group col-md-6" >
@@ -117,8 +122,10 @@
                     <th >Index</th >
                     <th >Item Name</th >
                     <th >Available Quantity</th >
+
                     <th >Unit Price</th >
                     <th >Quantity</th >
+                    <th >Discount</th >
                     <th >Warranty Number</th >
                     <th >Line Total</th >
                     <th >Modify</th >
@@ -412,13 +419,13 @@
         $(".popup-overlay, .popup-content").addClass("active");
         addButtonDisable();
 
-        if (resp.mainCategory === "MOBILE_PHONE") {
+      /*  if (resp.mainCategory === "MOBILE_PHONE") {
           $("#requestCount").val(1).prop("disabled", true);
           $("#warrantyBlock").show();
           totalPriceCard();
         } else {
           $("#warrantyBlock").hide();
-        }
+        }*/
       }
 
       function addButtonDisable() {
@@ -437,6 +444,7 @@
         receivedLedgerItem.quantity = $("#abQuantity").val();
         receivedLedgerItem.sellPrice = $("#sellPriceModal").val();
         receivedLedgerItem.requestCount = $("#requestCount").val();
+        receivedLedgerItem.discount = $("#disCount").val();
         let warrantyNumber = $("#warrantyNumber").val();
         if (warrantyNumber.length !== 0) {
           receivedLedgerItem.warrantyNumber = warrantyNumber;
@@ -446,7 +454,7 @@
         receivedLedgerItem.totalModal = $("#totalModal").val();// to need to add
         selectedInvoiceLedger.push(receivedLedgerItem);
         $(".popup-overlay, .popup-content").removeClass("active");
-        optionElementRemove('#item');
+      /*  optionElementRemove('#item');*/
         itemAddToItemSelectTable();
         modalValueZero();
       });
@@ -473,11 +481,15 @@
                           <th >
                           <input type="number" id="aq${id}" class="form-control" value="${invoiceLedger.quantity}" readonly>
                           </th >
+
                           <th >
                           <input type="number" id="sp${id}" class="form-control" name="invoiceLedgers[${id}].sellPrice" value="${invoiceLedger.sellPrice}" readonly>
                           </th >
                           <th >
                           <input type="number" id="rq${id}" class="form-control" onchange="lineTotalCalculateByLine(this)"  onkeyup="lineTotalCalculateByLine(this)" name="invoiceLedgers[${id}].quantity" value="${invoiceLedger.requestCount}" readonly>
+                          </th >
+                           <th >
+                          <input type="number" id="aq${id}" class="form-control lineDiscount" value="${invoiceLedger.discount}" readonly>
                           </th >
                           <th >
                           <input type="number" id="wr${id}" class="form-control warrantyNumber" name="invoiceLedgers[${id}].warrantyNumber" value="${invoiceLedger.warrantyNumber}" readonly>
@@ -511,6 +523,7 @@
       function lineTotalCalculateByLine(obj) {
         let selectedFiledId = obj.getAttribute('id').slice(2);
         let price = $(`#sp${selectedFiledId}`).val();
+
         $(`#lt${selectedFiledId}`).val(price * obj.value);
         totalPrice();
       }
@@ -526,19 +539,29 @@
         if ($("#discountRatio").find('option:selected').text() >= 0) {
           discountRatio();
         }
+
+        let discTotal = document.getElementsByClassName("lineDiscount");
+        let discValue = 0;
+        for (let i = 0; i < discTotal.length; i++) {
+          discValue += parseFloat(discTotal[i].value);
+        }
+        $("#discountAmount").val(discValue);
       }
 
+
+
       //modal total mount calculate
-      $("#requestCount").bind('keyup', function () {
+      $("#requestCount, #disCount").bind('keyup', function () {
         totalPriceCard();
       });
 
       function totalPriceCard() {
         let requestCountVal = $("#requestCount").val();
         let abQuantity = $("#abQuantity").val();
+        let disc = $('#disCount').val();
 
         if (parseFloat(abQuantity) >= parseFloat(requestCountVal)) {
-          $("#totalModal").val(parseFloat($("#sellPriceModal").val()) * parseFloat(requestCountVal));
+          $("#totalModal").val(parseFloat($("#sellPriceModal").val()) * parseFloat(requestCountVal) - parseFloat(disc));
           addButtonDisable();
         } else {
           swal({
@@ -552,13 +575,14 @@
         }
       }
 
-      //modal all values zero
+      //modal all values zero once add a item
       function modalValueZero() {
         $("#ledgerId").val(0);
         $("#itemName").val('');
         $("#abQuantity").val(0);
         $("#warrantyNumber").val('');
         $("#sellPriceModal").val(0.00);
+        $("#disCount").val(0.00);
         $("#requestCount").val('');
         $("#totalModal").val(0.00);
       }
@@ -592,12 +616,16 @@
       });
 
       function discountRatio() {
+        let discTotal = document.getElementsByClassName("disCount");
         let discountRatio = parseFloat($("#discountRatio").find('option:selected').text());
         let total = parseFloat($("#total").val());
         let discountAmount = total * discountRatio / 100;
         $("#totalAmount").val(total - discountAmount);
-        $("#discountAmount").val(discountAmount);
+        $("#discountAmount").val(discTotal);
       }
+
+
+
 
       $("#amountTendered").bind('keyup', function () {
         let tenderedAmount = parseFloat($(this).val());
@@ -629,11 +657,11 @@
       }
 
       //option tag add
-      function optionTagAdd(id, name, sellPrice, abQut, exDate) {
-        return `<option value="${id}">
+      function optionTagAdd(id, name, sellPrice, abQut) {
+     /*   return `<option value="${id}">
                           Item Name: ${name}  Sell Price : {sellPrice}
-                          Available quantity : ${abQut}  Expired Date : ${exDate}
-                        </option>`;
+                          Available quantity : ${abQut}
+                        </option>`;*/
       }
 
     </script >

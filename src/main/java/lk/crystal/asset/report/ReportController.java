@@ -19,6 +19,8 @@ import lk.crystal.asset.invoice_ledger.service.InvoiceLedgerService;
 import lk.crystal.asset.item.entity.Item;
 import lk.crystal.asset.item.entity.enums.MainCategory;
 import lk.crystal.asset.item.service.ItemService;
+import lk.crystal.asset.item_color.entity.ItemColor;
+import lk.crystal.asset.item_color.service.ItemColorService;
 import lk.crystal.asset.ledger.entity.Ledger;
 import lk.crystal.asset.ledger.service.LedgerService;
 import lk.crystal.asset.payment.entity.Payment;
@@ -42,6 +44,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,11 +64,12 @@ public class ReportController {
   private final ItemService itemService;
   private final CustomerService customerService;
   private final PurchaseOrderItemService purchaseOrderItemService;
+  private final ItemColorService itemColorService;
 
   public ReportController(PaymentService paymentService, InvoiceService invoiceService,
                           OperatorService operatorService, DateTimeAgeService dateTimeAgeService,
                           UserService userService, InvoiceLedgerService invoiceLedgerService,
-                          EmployeeService employeeService, LedgerService ledgerService, ItemService itemService, CustomerService customerService, PurchaseOrderItemService purchaseOrderItemService) {
+                          EmployeeService employeeService, LedgerService ledgerService, ItemService itemService, CustomerService customerService, PurchaseOrderItemService purchaseOrderItemService, ItemColorService itemColorService) {
     this.paymentService = paymentService;
     this.invoiceService = invoiceService;
     this.operatorService = operatorService;
@@ -77,6 +81,7 @@ public class ReportController {
     this.itemService = itemService;
     this.customerService = customerService;
     this.purchaseOrderItemService = purchaseOrderItemService;
+    this.itemColorService = itemColorService;
   }
 
   private String commonAll(List< Payment > payments, List< Invoice > invoices, Model model, String message,
@@ -431,7 +436,7 @@ public class ReportController {
 
     items.forEach(x->{
       ledgersByCategory.addAll(ledgerService.findByItem(x));
-    });
+  });
 
     model.addAttribute("ledgersByCategory", ledgersByCategory);
     return "report/itemsBySubCategory";
@@ -546,5 +551,24 @@ public class ReportController {
     return "report/incomeItem";
   }
 
+
+  @GetMapping( "/itemByColor" )
+  public String itemByColor(Model model){
+    model.addAttribute("item", new Item());
+    model.addAttribute("itemColors", itemColorService.findAll());
+
+    return "/report/itemByColor";
+  }
+
+  @PostMapping("/itemsForColor")
+  public String searchByColor(@ModelAttribute ItemColor itemColor, Model model){
+    System.out.println(itemColor);
+    List<Item> itemsForColor = itemService.findByItemColor(itemColor);
+
+    Collections.reverse(itemsForColor);
+    System.out.println(itemsForColor);
+    model.addAttribute("itemsForColor", itemsForColor);
+    return "/report/itemsForColor";
+  }
 
 }

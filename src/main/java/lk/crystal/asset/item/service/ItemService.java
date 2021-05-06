@@ -4,6 +4,7 @@ import lk.crystal.asset.category.entity.Category;
 import lk.crystal.asset.common_asset.model.enums.LiveDead;
 import lk.crystal.asset.item.dao.ItemDao;
 import lk.crystal.asset.item.entity.Item;
+import lk.crystal.asset.item_color.entity.ItemColor;
 import lk.crystal.util.interfaces.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -64,5 +65,9 @@ public class ItemService implements AbstractService<Item, Integer> {
         return itemDao.findByCategory(category).stream()
                 .filter(x -> LiveDead.ACTIVE.equals(x.getLiveDead()))
                 .collect(Collectors.toList());
+    }
+
+    public List<Item> findByItemColor(ItemColor itemColor) {
+        return itemDao.findByItemColor(itemColor);
     }
 }
